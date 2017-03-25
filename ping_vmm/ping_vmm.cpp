@@ -3,14 +3,16 @@
 
 #include "stdafx.h"
 
-
 void IsVmmInstalled() {
+  static const unsigned long kHyperVCpuidInterface = 0x40000001;
+
+  // Issue CPUID with the back-door code. "HypP" should be returned in EAX if
+  // HyperPlatform is installed.
   int cpu_info[4] = {};
-  __cpuidex(cpu_info, 0, 'gniP');
-  char vendor_id[13] = {};
-  memcpy(&vendor_id[0], &cpu_info[1], 4);   // ebx
-  memcpy(&vendor_id[4], &cpu_info[3], 4);   // edx
-  memcpy(&vendor_id[8], &cpu_info[2], 4);   // ecx
+  __cpuidex(cpu_info, kHyperVCpuidInterface, 0);
+
+  char vendor_id[5] = {};
+  memcpy(&vendor_id[0], &cpu_info[0], 4);  // eax
   std::cout << "Ping : " << vendor_id << std::endl;
 }
 
